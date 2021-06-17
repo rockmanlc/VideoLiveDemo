@@ -24,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
 
     private MediaProjectionManager mediaProjectionManager;
     private MediaProjection mediaProjection;
+    ScreenLive screenLive;
+    private String url = "rtmp://live-push.bilivideo.com/live-bvc/?streamname=live_347244613_47623249&key=367c3ef3c521d04318b0fbe164272037&schedule=rtmp&pflag=1";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +45,16 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 100 && resultCode == Activity.RESULT_OK) {
             mediaProjection = mediaProjectionManager.getMediaProjection(requestCode, data);
+
+            screenLive = new ScreenLive();
+            //2
+            screenLive.startLive(url, mediaProjection);
         }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void startLive(View view) {
+        //1
         this.mediaProjectionManager = (MediaProjectionManager)getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         Intent captureIntent = mediaProjectionManager.createScreenCaptureIntent();
         startActivityForResult(captureIntent, 100);
