@@ -5,6 +5,7 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.projection.MediaProjection;
+import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 
@@ -55,10 +56,16 @@ public class VideoCodec extends Thread {
             //13
             ByteBuffer[] byteBuffer = mediaCodec.getOutputBuffers();
             int index = mediaCodec.dequeueOutputBuffer(bufferInfo, 100000);
-            ByteBuffer buffer = byteBuffer[index];
-            //14
-            byte[] outData = new byte[bufferInfo.size];
-            buffer.get(outData);
+            if (index >=0) {
+                ByteBuffer buffer = byteBuffer[index];
+                //14
+                byte[] outData = new byte[bufferInfo.size];
+                buffer.get(outData);
+                //15
+                FileUtils.writeBytes(outData);
+                FileUtils.writeContent(outData);
+                mediaCodec.releaseOutputBuffer(index, false);
+            }
         }
     }
 }
