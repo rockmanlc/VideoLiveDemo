@@ -3,21 +3,111 @@ package com.rocklee.videolivedemo;
 import android.hardware.display.DisplayManager;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
+import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.media.projection.MediaProjection;
 import android.util.Log;
+import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class VideoCodec extends Thread {
-
+    private static final String TAG = "VideoCodec";
     private MediaProjection mediaProjection;
     MediaCodec mediaCodec;
     private boolean isLiving;
+
+    private static boolean isRecognizedFormat(int colorFormat) {
+        switch (colorFormat) {
+            case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar:
+            case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420PackedPlanar:
+            case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar:
+            case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420PackedSemiPlanar:
+            case MediaCodecInfo.CodecCapabilities.COLOR_TI_FormatYUV420PackedSemiPlanar:
+            case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible:
+            case MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface :
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public void startLive(MediaProjection mediaProjection) {
+
+        MediaCodecList list = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
+        MediaCodecInfo[] supportCodes = list.getCodecInfos();
+        Log.i(TAG, "解码器列表：");
+        for (MediaCodecInfo codec : supportCodes) {
+            if (!codec.isEncoder()) {
+                String name = codec.getName();
+                if (name.startsWith("OMX.google")) {
+                    Log.i(TAG, "软解->" + name);
+                }
+            }
+        }
+        for (MediaCodecInfo codec : supportCodes) {
+            if (!codec.isEncoder()) {
+                String name = codec.getName();
+                if (!name.startsWith("OMX.google")) {
+                    Log.i(TAG, "硬解->" + name);
+                }
+            }
+        }
+        Log.i(TAG, "编码器列表：");
+        for (MediaCodecInfo codec : supportCodes) {
+            if (codec.isEncoder()) {
+                String name = codec.getName();
+                if (name.startsWith("OMX.google")) {
+                    Log.i(TAG, "软编->" + name);
+                }
+            }
+        }
+        for (MediaCodecInfo codec : supportCodes) {
+            if (codec.isEncoder()) {
+                String name = codec.getName();
+                if (!name.startsWith("OMX.google")) {
+                    Log.i(TAG, "硬编->" + name);
+                }
+                for (String type : codec.getSupportedTypes()) {
+                    Log.i(TAG, "type->" + type);
+                    if (type.equalsIgnoreCase(MediaFormat.MIMETYPE_VIDEO_HEVC)) {
+                        MediaCodecInfo.CodecCapabilities cap = codec.getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_HEVC);
+                        MediaCodecInfo.VideoCapabilities vCap = cap.getVideoCapabilities();
+                        Size supportedSize = new Size(vCap.getSupportedWidths().getUpper(), vCap.getSupportedHeights().getUpper());
+                        Log.i(TAG, "HEVC decoder=\"" + codec.getName() + "\""
+                                + " supported-size=" + supportedSize
+                                + " color-formats=" + Arrays.toString(cap.colorFormats)
+                        );
+                        for (int i = 0; i < cap.colorFormats.length; i++) {
+                            int colorFormat = cap.colorFormats[i];
+                            if (isRecognizedFormat(colorFormat)) {
+                                Log.i(TAG,"supported color");
+                            }
+                        }
+                    }
+                    if (type.equalsIgnoreCase(MediaFormat.MIMETYPE_VIDEO_AVC)) {
+                        MediaCodecInfo.CodecCapabilities cap = codec.getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_AVC);
+                        MediaCodecInfo.VideoCapabilities vCap = cap.getVideoCapabilities();
+                        Size supportedSize = new Size(vCap.getSupportedWidths().getUpper(), vCap.getSupportedHeights().getUpper());
+                        Log.i(TAG, "AVC decoder=\"" + codec.getName() + "\""
+                                + " supported-size=" + supportedSize
+                                + " color-formats=" + Arrays.toString(cap.colorFormats)
+                        );
+                        for (int i = 0; i < cap.colorFormats.length; i++) {
+                            int colorFormat = cap.colorFormats[i];
+                            if (isRecognizedFormat(colorFormat)) {
+                                Log.i(TAG,"supported color");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         //5
         this.mediaProjection = mediaProjection;
         try {
