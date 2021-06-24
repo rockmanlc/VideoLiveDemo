@@ -19,7 +19,12 @@ public class VideoCodec extends Thread {
     private static final String TAG = "VideoCodec";
     private MediaProjection mediaProjection;
     MediaCodec mediaCodec;
+    private String filePath;
     private boolean isLiving;
+
+    public VideoCodec(String path) {
+        this.filePath = path;
+    }
 
     private static boolean isRecognizedFormat(int colorFormat) {
         switch (colorFormat) {
@@ -133,6 +138,7 @@ public class VideoCodec extends Thread {
             e.printStackTrace();
         }
         //11
+        isLiving = true;
         start();
     }
 
@@ -140,9 +146,9 @@ public class VideoCodec extends Thread {
     public void run() {
         //12
         mediaCodec.start();
-        isLiving = true;
         MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
-        while (true) {
+        Log.i(TAG, "filePath is " + filePath);
+        while (isLiving) {
             //13
             ByteBuffer[] byteBuffer = mediaCodec.getOutputBuffers();
             int index = mediaCodec.dequeueOutputBuffer(bufferInfo, 100000);
@@ -152,10 +158,14 @@ public class VideoCodec extends Thread {
                 byte[] outData = new byte[bufferInfo.size];
                 buffer.get(outData);
                 //15
-                FileUtils.writeBytes(outData);
-                FileUtils.writeContent(outData);
+                FileUtils.writeBytes(filePath, outData);
+                FileUtils.writeContent(filePath, outData);
                 mediaCodec.releaseOutputBuffer(index, false);
             }
         }
+    }
+
+    public void stopLive() {
+        isLiving = false;
     }
 }

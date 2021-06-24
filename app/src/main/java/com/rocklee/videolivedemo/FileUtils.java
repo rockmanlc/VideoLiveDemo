@@ -1,5 +1,6 @@
 package com.rocklee.videolivedemo;
 
+import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
@@ -12,10 +13,10 @@ import java.io.IOException;
 public class FileUtils {
     private static final String TAG = "FileUtils";
 
-    public static void writeBytes(byte[] array) {
+    public static void writeBytes(String filePath, byte[] array) {
         FileOutputStream writer = null;
         try {
-            writer = new FileOutputStream(Environment.getExternalStorageState() + "/codec.h264", true);
+            writer = new FileOutputStream(filePath + "/codec1.h264", true);
             writer.write(array);
             writer.write('\n');
         } catch (IOException e) {
@@ -31,7 +32,7 @@ public class FileUtils {
         }
     }
 
-    public static String writeContent(byte[] array) {
+    public static String writeContent(String filePath, byte[] array) {
         char[] HEX_CHAR_TABLE = {
                 '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
         };
@@ -43,7 +44,7 @@ public class FileUtils {
         Log.i(TAG, "writeContent: " + sb.toString());
         FileWriter writer = null;
         try {
-            writer = new FileWriter(Environment.getExternalStorageState() + "/codec.h264", true);
+            writer = new FileWriter(filePath + "/codec2.h264", true);
             writer.write(sb.toString());
             writer.write('\n');
         } catch (IOException e) {
