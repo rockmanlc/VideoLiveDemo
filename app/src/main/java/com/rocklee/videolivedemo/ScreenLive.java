@@ -1,8 +1,10 @@
 package com.rocklee.videolivedemo;
 
 import android.media.projection.MediaProjection;
+import android.util.Log;
 
 public class ScreenLive extends Thread {
+    private static final String TAG = "ScreenLive";
     VideoCodec videoCodec;
     private String url;
     private String videoFilePath;
@@ -20,6 +22,11 @@ public class ScreenLive extends Thread {
 
     @Override
     public void run() {
+        //16
+        if (!connect(url)) {
+            Log.e(TAG, "run: ---->fail!");
+        }
+
         videoCodec = new VideoCodec(videoFilePath);
         //4
         videoCodec.startLive(mediaProjection);
@@ -30,4 +37,6 @@ public class ScreenLive extends Thread {
             videoCodec.stopLive();
         }
     }
+
+    private native boolean connect(String url);
 }

@@ -41,8 +41,7 @@ public class VideoCodec extends Thread {
         }
     }
 
-    public void startLive(MediaProjection mediaProjection) {
-
+    private void getMediaCodecInfo() {
         MediaCodecList list = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
         MediaCodecInfo[] supportCodes = list.getCodecInfos();
         Log.i(TAG, "解码器列表：");
@@ -83,7 +82,7 @@ public class VideoCodec extends Thread {
                         MediaCodecInfo.CodecCapabilities cap = codec.getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_HEVC);
                         MediaCodecInfo.VideoCapabilities vCap = cap.getVideoCapabilities();
                         Size supportedSize = new Size(vCap.getSupportedWidths().getUpper(), vCap.getSupportedHeights().getUpper());
-                        Log.i(TAG, "HEVC decoder=\"" + codec.getName() + "\""
+                        Log.i(TAG, "HEVC encoder=\"" + codec.getName() + "\""
                                 + " supported-size=" + supportedSize
                                 + " color-formats=" + Arrays.toString(cap.colorFormats)
                         );
@@ -98,7 +97,7 @@ public class VideoCodec extends Thread {
                         MediaCodecInfo.CodecCapabilities cap = codec.getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_AVC);
                         MediaCodecInfo.VideoCapabilities vCap = cap.getVideoCapabilities();
                         Size supportedSize = new Size(vCap.getSupportedWidths().getUpper(), vCap.getSupportedHeights().getUpper());
-                        Log.i(TAG, "AVC decoder=\"" + codec.getName() + "\""
+                        Log.i(TAG, "AVC encoder=\"" + codec.getName() + "\""
                                 + " supported-size=" + supportedSize
                                 + " color-formats=" + Arrays.toString(cap.colorFormats)
                         );
@@ -112,7 +111,10 @@ public class VideoCodec extends Thread {
                 }
             }
         }
+    }
 
+    public void startLive(MediaProjection mediaProjection) {
+        //getMediaCodecInfo();
         //5
         this.mediaProjection = mediaProjection;
         try {

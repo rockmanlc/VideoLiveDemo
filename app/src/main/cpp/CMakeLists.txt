@@ -13,7 +13,7 @@ project("videolivedemo")
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
-
+add_subdirectory(librtmp)
 add_library( # Sets the name of the library.
              native-lib
 
@@ -45,4 +45,5 @@ target_link_libraries( # Specifies the target library.
 
                        # Links the target library to the log library
                        # included in the NDK.
-                       ${log-lib} )
+                       ${log-lib}
+                        rtmp)
