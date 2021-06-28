@@ -6,6 +6,7 @@ import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.media.projection.MediaProjection;
+import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;
 import android.view.Display;
@@ -21,9 +22,12 @@ public class VideoCodec extends Thread {
     MediaCodec mediaCodec;
     private String filePath;
     private boolean isLiving;
+    private long startTime;
+    private ScreenLive screenLive;
 
-    public VideoCodec(String path) {
+    public VideoCodec(String path, ScreenLive screenLive) {
         this.filePath = path;
+        this.screenLive = screenLive;
     }
 
     private static boolean isRecognizedFormat(int colorFormat) {
@@ -144,6 +148,7 @@ public class VideoCodec extends Thread {
         start();
     }
 
+    private long timeStamp;
     @Override
     public void run() {
         //12
@@ -151,17 +156,31 @@ public class VideoCodec extends Thread {
         MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
         Log.i(TAG, "filePath is " + filePath);
         while (isLiving) {
+            //手动触发I帧
+            if (System.currentTimeMillis() - timeStamp >= 2000) {
+                Bundle params = new Bundle();
+                params.putInt(MediaCodec.PARAMETER_KEY_REQUEST_SYNC_FRAME, 0);
+                mediaCodec.setParameters(params);
+                timeStamp = System.currentTimeMillis();
+            }
+
             //13
             ByteBuffer[] byteBuffer = mediaCodec.getOutputBuffers();
             int index = mediaCodec.dequeueOutputBuffer(bufferInfo, 100000);
             if (index >=0) {
+                if (startTime == 0) {
+                    startTime = bufferInfo.presentationTimeUs / 1000;
+                }
                 ByteBuffer buffer = byteBuffer[index];
                 //14
                 byte[] outData = new byte[bufferInfo.size];
                 buffer.get(outData);
-                //15
-                FileUtils.writeBytes(filePath, outData);
-                FileUtils.writeContent(filePath, outData);
+                //15 check h264 data
+                //FileUtils.writeBytes(filePath, outData);
+                //FileUtils.writeContent(filePath, outData);
+                RTMPPackage rtmpPackage = new RTMPPackage(outData, (bufferInfo.presentationTimeUs/1000)-startTime);
+                screenLive.addPackage(rtmpPackage);
+
                 mediaCodec.releaseOutputBuffer(index, false);
             }
         }

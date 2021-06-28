@@ -20,7 +20,7 @@ public class CaptureScreenService extends Service {
     private MediaProjectionManager mediaProjectionManager;
     private MediaProjection mediaProjection;
     ScreenLive screenLive;
-    private String url = "rtmp://live-push.bilivideo.com/live-bvc/?streamname=live_347244613_47623249&key=367c3ef3c521d04318b0fbe164272037&schedule=rtmp&pflag=1";
+    String url = "rtmp://live-push.bilivideo.com/live-bvc/?streamname=live_347244613_47623249&key=367c3ef3c521d04318b0fbe164272037&schedule=rtmp&pflag=1";
 
     @Nullable
     @Override
