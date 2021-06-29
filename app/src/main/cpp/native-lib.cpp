@@ -64,6 +64,10 @@ RTMPPacket *createVideoPackage(int8_t *buf, int len, const long tms, Live *live)
         packet->m_body[0] = 0x27;
         LogI("send non IDR");
     }
+    packet->m_body[1] = 0x01;
+    packet->m_body[2] = 0x00;
+    packet->m_body[3] = 0x00;
+    packet->m_body[4] = 0x00;
     packet->m_body[5] = (len >> 24) & 0xFF;
     packet->m_body[6] = (len >> 16) & 0xFF;
     packet->m_body[7] = (len >> 8) & 0xFF;
@@ -89,21 +93,20 @@ RTMPPacket *createVideoPackage(Live *live) {
     packet->m_body[i++] = 0x00;
     packet->m_body[i++] = 0x00;
     packet->m_body[i++] = 0x00;
-    packet->m_body[i++] = 0x00;
     packet->m_body[i++] = 0x01;
     packet->m_body[i++] = live->sps[1];
     packet->m_body[i++] = live->sps[2];
     packet->m_body[i++] = live->sps[3];
     packet->m_body[i++] = 0xFF;
     packet->m_body[i++] = 0xE1;
-    //sps 高八位
+    //sps len
     packet->m_body[i++] = (live->sps_len >> 8) & 0xFF;
-    //sps 低八位
     packet->m_body[i++] = live->sps_len & 0xFF;
     //sps
     memcpy(&packet->m_body[i], live->sps, live->sps_len);
     i += live->sps_len;
     packet->m_body[i++] = 0x01;
+    //pps len
     packet->m_body[i++] = (live->pps_len >> 8) & 0xFF;
     packet->m_body[i++] = live->pps_len & 0xFF;
     //pps

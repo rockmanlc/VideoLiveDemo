@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 100 && resultCode == Activity.RESULT_OK) {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                 //mediaProjection = mediaProjectionManager.getMediaProjection(requestCode, data);
                 //screenLive = new ScreenLive();
                 //2
